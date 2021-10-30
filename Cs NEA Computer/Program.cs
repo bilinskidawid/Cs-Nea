@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,9 +15,10 @@ namespace Cs_NEA_Computer
         [STAThread]
         static void Main()
         {
+            Console.WriteLine("Enter program class");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new ComputerMain());
         }
     }
 }
