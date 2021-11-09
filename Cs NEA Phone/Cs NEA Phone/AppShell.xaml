@@ -15,7 +15,7 @@
         <ResourceDictionary>
             <Style x:Key="BaseStyle" TargetType="Element">
                 <Setter Property="Shell.BackgroundColor" Value="{StaticResource Primary}" />
-                <Setter Property="Shell.ForegroundColor" Value="White" />
+                <Setter Property="Shell.ForegroundColor" Value="Purple" />
                 <Setter Property="Shell.TitleColor" Value="White" />
                 <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
                 <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
@@ -78,12 +78,23 @@
         FlyoutDisplayOptions="AsMultipleItems" will create a separate flyout item for each child element    
         https://docs.microsoft.com/dotnet/api/xamarin.forms.shellgroupitem.flyoutdisplayoptions?view=xamarin-forms
     -->
-    <FlyoutItem Title="About" Icon="icon_about.png">
+   
+    <FlyoutItem Title="Welcome" Icon="xamarin_logo.png">
         <ShellContent Route="AboutPage" ContentTemplate="{DataTemplate local:AboutPage}" />
     </FlyoutItem>
-    <FlyoutItem Title="Browse" Icon="icon_feed.png">
-        <ShellContent Route="ItemsPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
+    <FlyoutItem Title="Tutorial" Icon="icon_feed.png">
+        <ShellContent Route="WalkthroughItemPage" ContentTemplate="{DataTemplate local:WalkthroughItemPage}" />
     </FlyoutItem>
+    <FlyoutItem Title="Connect new device" Icon="icon_feed.png">
+        <ShellContent Route="WalkthroughItemPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Favourited Devices" Icon="icon_feed.png">
+        <ShellContent Route="FavouritedPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="QR Connect" Icon="icon_feed.png">
+        <ShellContent Route="QRConnectPage" ContentTemplate="{DataTemplate local:ItemsPage}" />
+    </FlyoutItem>
+    
 
     <!-- When the Flyout is visible this will be a menu item you can tie a click behavior to  -->
     <MenuItem Text="Logout" StyleClass="MenuItemLayoutStyle" Clicked="OnMenuItemClicked">
@@ -99,6 +110,9 @@
     <TabBar>
         <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}" />
     </TabBar>
+    <TabBar>
+        
+           
 
     <!-- Optional Templates 
     // These may be provided inline as below or as separate classes.

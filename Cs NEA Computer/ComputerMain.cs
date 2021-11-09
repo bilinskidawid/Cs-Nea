@@ -18,23 +18,8 @@ namespace Cs_NEA_Computer
             InitializeComponent();
 
             Console.WriteLine("Main mark 1");
-            var server = new SimpleTcpServer();
-
-            server.ClientConnected += (sender, e) =>
-                        Console.WriteLine($"Server: {e.Client.RemoteEndPoint} connected!");
-
-            server.ClientDisconnected += (sender, e) =>
-                Console.WriteLine($"SERVER: Client disconnected!");
-
-            server.DataReceived += (sender, e) =>
-            {
-                var ep = e.TcpClient.Client.RemoteEndPoint;
-                var msg = Encoding.UTF8.GetString(e.Data);
-                Console.WriteLine($"SERVER: Received {msg} from client");
-                
-
-            };
-            server.Start(503);
+            setUpServer();
+            
             
             
         }
@@ -51,6 +36,27 @@ namespace Cs_NEA_Computer
                 client.WriteLine(msg);
             }
             client.Disconnect();
+        }
+
+        public void setUpServer()
+        {
+            var server = new SimpleTcpServer();
+
+            server.ClientConnected += (sender, e) =>
+                        Console.WriteLine($"Server: {e.Client.RemoteEndPoint} connected!");
+
+            server.ClientDisconnected += (sender, e) =>
+                Console.WriteLine($"SERVER: Client disconnected!");
+
+            server.DataReceived += (sender, e) =>
+            {
+                var ep = e.TcpClient.Client.RemoteEndPoint;
+                var msg = Encoding.UTF8.GetString(e.Data);
+                Console.WriteLine($"SERVER: Received {msg} from client");
+
+
+            };
+            server.Start(503);
         }
 
         private void button1_Click(object senders, EventArgs es)

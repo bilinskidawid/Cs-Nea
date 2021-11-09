@@ -13,6 +13,7 @@ namespace Cs_NEA_Phone
             InitializeComponent();
             Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
             Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
+            Routing.RegisterRoute(nameof(WalkthroughItemPage), typeof(WalkthroughItemPage));
         }
 
         private async void OnMenuItemClicked(object sender, EventArgs e)

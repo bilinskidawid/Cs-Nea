@@ -18,7 +18,10 @@ namespace Cs_NEA_Computer
             Console.WriteLine("Enter program class");
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            UserControl1 app = new UserControl1();
             Application.Run(new ComputerMain());
+            app.InitializeComponent();
+            
         }
     }
 }
