@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Computer-Side", "Computer-Side\Computer-Side.csproj", "{F5F6E00E-8B49-496B-AA37-A114BB409F68}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cs-Computer", "Computer-Side\Cs-Computer.csproj", "{F5F6E00E-8B49-496B-AA37-A114BB409F68}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nea-Phone.Android", "Nea-Phone\Nea-Phone.Android\Nea-Phone.Android.csproj", "{25168310-3006-4D7E-9937-2054A45C215C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nea-Phone", "Nea-Phone\Nea-Phone\Nea-Phone.csproj", "{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,16 @@ Global
 		{F5F6E00E-8B49-496B-AA37-A114BB409F68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5F6E00E-8B49-496B-AA37-A114BB409F68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5F6E00E-8B49-496B-AA37-A114BB409F68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25168310-3006-4D7E-9937-2054A45C215C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25168310-3006-4D7E-9937-2054A45C215C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25168310-3006-4D7E-9937-2054A45C215C}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{25168310-3006-4D7E-9937-2054A45C215C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25168310-3006-4D7E-9937-2054A45C215C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25168310-3006-4D7E-9937-2054A45C215C}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
