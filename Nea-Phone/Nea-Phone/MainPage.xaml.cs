@@ -15,15 +15,34 @@ namespace Nea_Phone
         public MainPage()
         {
             InitializeComponent();
+            BindingContext = new MainPageViewModel(); //binding context to viewmodel
             mouseClick(); //once the program starts, you can click the button
+
+            
+            
+
+
+            var panGesture = new PanGestureRecognizer();
+            panGesture.PanUpdated += (s, e) => {
+                Console.WriteLine("x: " + e.TotalX);
+               Console.WriteLine("y" + e.TotalY*-1);
+                
+            };
+            theMouse.GestureRecognizers.Add(panGesture);
         }
 
-        void mouseClick()
+
+
+
+        private void mouseClick()
         {
             theMouse.GestureRecognizers.Add(new TapGestureRecognizer()
             { Command = new Command(() => { DisplayAlert("Task", "Clicked", "Ok"); }) });
 
+           
+
         }
+
 
     }
 

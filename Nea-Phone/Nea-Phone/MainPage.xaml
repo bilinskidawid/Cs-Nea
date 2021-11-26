@@ -4,18 +4,27 @@
              x:Class="Nea_Phone.MainPage">
 
     <StackLayout>
+        <Label x:Name="coords" Text="{Binding xVal}" HorizontalOptions="CenterAndExpand" FontSize="20">
 
+        </Label>
         <Frame BorderColor="Red"
                VerticalOptions="CenterAndExpand" 
                HorizontalOptions="CenterAndExpand"
                >
+            
+            
+            
+            
             <Ellipse x:Name ="theMouse" Fill="DarkBlue"
-         WidthRequest="150"
-         HeightRequest="150"
-         HorizontalOptions="CenterAndExpand"
-         VerticalOptions="CenterAndExpand"
-                     
-            />
+                WidthRequest="150"
+                HeightRequest="150"
+                HorizontalOptions="CenterAndExpand"
+                VerticalOptions="CenterAndExpand">
+                <Ellipse.GestureRecognizers>
+                <DragGestureRecognizer
+                        CanDrag="true"/>
+                </Ellipse.GestureRecognizers>
+            </Ellipse>
             
             
         </Frame>

@@ -88,7 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Nea-Phone\Nea-Phone.csproj">
-      <Project>{7031EF69-407E-458A-BC38-F62B7999FB69}</Project>
+      <Project>{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}</Project>
       <Name>Nea-Phone</Name>
     </ProjectReference>
   </ItemGroup>
