@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SimpleTCP;
+using System.Windows.Forms;
+using Control = System.Windows.Forms.Control;
 
 namespace Computer_Side
 {
@@ -21,10 +24,21 @@ namespace Computer_Side
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        [DllImport("User32.dll")] //importing 
+        private static extern bool SetCursorPos(int X, int Y);
         public MainWindow()
         {
             InitializeComponent();
+            
             setUpServer();
+        }
+
+
+        public void moveMouse(double x, double y)
+        {
+            var point = Control.MousePosition;
+            SetCursorPos(-1*Convert.ToInt32(x), Convert.ToInt32(y) + 1000); //testing to make sure setting beyond screen limits doesnt throw errors
         }
         public void setUpTestClient()
         {
@@ -66,7 +80,7 @@ namespace Computer_Side
                 var ep = e.TcpClient.Client.RemoteEndPoint;
                 var msg = Encoding.UTF8.GetString(e.Data);
                 Console.WriteLine($"SERVER: Received {msg} from client");
-
+                moveMouse(50, 50);
 
             };
             server.Start(503);
@@ -75,7 +89,14 @@ namespace Computer_Side
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            setUpTestClient();
+
+            //setUpTestClient();
+
+            double y = SystemParameters.FullPrimaryScreenHeight;
+            double x = SystemParameters.FullPrimaryScreenWidth;
+
+
+            moveMouse(x, y);
         }
 
     }
