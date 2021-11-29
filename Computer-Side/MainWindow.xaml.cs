@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 using SimpleTCP;
 using System.Windows.Forms;
 using Control = System.Windows.Forms.Control;
+using System.Net.Sockets;
+using System.Net;
 
 namespace Computer_Side
 {
@@ -31,14 +33,15 @@ namespace Computer_Side
         {
             InitializeComponent();
             
-            setUpServer();
+            setUpSocketServer();
+            
         }
 
 
         public void moveMouse(double x, double y)
         {
             var point = Control.MousePosition;
-            SetCursorPos(Convert.ToInt32(x), Convert.ToInt32(y)); //testing to make sure setting beyond screen limits doesnt throw errors
+            SetCursorPos(Convert.ToInt32(x) + point.X, Convert.ToInt32(y) + point.Y); //testing to make sure setting beyond screen limits doesnt throw errors
         }
         public void setUpTestClient()
         {
@@ -56,7 +59,7 @@ namespace Computer_Side
             }
             catch (Exception)
             {
-                Console.WriteLine("Cannot connect, port is not open");
+                Console.WriteLine("Cannot connect, port/destination is not open");
                 return;
             }
 
@@ -77,13 +80,13 @@ namespace Computer_Side
 
             server.DataReceived += (sender, e) =>
             {
-                var ep = e.TcpClient.Client.RemoteEndPoint;
-                var msg = Encoding.UTF8.GetString(e.Data);
-                string x = msg.Split(',')[0];
+                var ep = e.TcpClient.Client.RemoteEndPoint; //clients IP address and port communication
+                var msg = Encoding.UTF8.GetString(e.Data); 
+                string x = msg.Split(',')[0]; //first part of msg, before comma
                 string y = msg.Split(',')[1];
-                //moveMouse(Double.Parse(x), Double.Parse(y));
-                Console.WriteLine(x);
-                Console.WriteLine(y);
+                moveMouse(Double.Parse(x), Double.Parse(y));
+                
+                
 
 
             };
@@ -99,6 +102,77 @@ namespace Computer_Side
 
 
            
+        }
+        public void setUpSocketServer()
+        {
+            Console.WriteLine("Ready");
+            TcpListener server = null;
+            try
+            {
+                // Set the TcpListener on port 13000.
+                Int32 port = 503;
+                
+
+                // TcpListener server = new TcpListener(port);
+                server = new TcpListener(IPAddress.Any, port);
+
+                // Start listening for client requests.
+                server.Start();
+
+                // Buffer for reading data
+                Byte[] bytes = new Byte[256];
+                String data = null;
+
+                // Enter the listening loop.
+                while (true)
+                {
+                    Console.Write("Waiting for a connection... ");
+
+                    // Perform a blocking call to accept requests.
+                    // You could also use server.AcceptSocket() here.
+                    TcpClient client = server.AcceptTcpClient();
+                    Console.WriteLine("Connected!");
+
+                    data = null;
+
+                    // Get a stream object for reading and writing
+                    NetworkStream stream = client.GetStream();
+
+                    int i;
+
+                    // Loop to receive all the data sent by the client.
+                    while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+                    {
+                        // Translate data bytes to a ASCII string.
+                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                        Console.WriteLine("Received: {0}", data);
+
+                        // Process the data sent by the client.
+                        data = data.ToUpper();
+
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+
+                        // Send back a response.
+                        stream.Write(msg, 0, msg.Length);
+                        Console.WriteLine("Sent: {0}", data);
+                    }
+
+                    // Shutdown and end connection
+                    client.Close();
+                }
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("SocketException: {0}", e);
+            }
+            finally
+            {
+                // Stop listening for new clients.
+                server.Stop();
+            }
+
+            Console.WriteLine("\nHit enter to continue...");
+            Console.Read();
         }
 
     }
