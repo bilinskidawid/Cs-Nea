@@ -38,13 +38,16 @@ namespace Computer_Side
         public void moveMouse(double x, double y)
         {
             var point = Control.MousePosition;
-            SetCursorPos(-1*Convert.ToInt32(x), Convert.ToInt32(y) + 1000); //testing to make sure setting beyond screen limits doesnt throw errors
+            SetCursorPos(Convert.ToInt32(x), Convert.ToInt32(y)); //testing to make sure setting beyond screen limits doesnt throw errors
         }
         public void setUpTestClient()
         {
             Console.WriteLine("TestClient method started");
             int port = 503;
-            string msg = "elloo laddie";
+            string msg = "250,300";
+            
+
+
             var client = new SimpleTcpClient();
 
             try //checking to make sure there is an open port
@@ -58,11 +61,8 @@ namespace Computer_Side
             }
 
 
-            if (msg != "")
-            {
-                client.WriteLine(msg);
-            }
-            client.Disconnect();
+
+            client.Write(msg);
         }
 
         public void setUpServer()
@@ -79,8 +79,12 @@ namespace Computer_Side
             {
                 var ep = e.TcpClient.Client.RemoteEndPoint;
                 var msg = Encoding.UTF8.GetString(e.Data);
-                Console.WriteLine($"SERVER: Received {msg} from client");
-                moveMouse(50, 50);
+                string x = msg.Split(',')[0];
+                string y = msg.Split(',')[1];
+                //moveMouse(Double.Parse(x), Double.Parse(y));
+                Console.WriteLine(x);
+                Console.WriteLine(y);
+
 
             };
             server.Start(503);
@@ -90,13 +94,11 @@ namespace Computer_Side
         private void Button_Click(object sender, RoutedEventArgs e)
         {
 
-            //setUpTestClient();
-
-            double y = SystemParameters.FullPrimaryScreenHeight;
-            double x = SystemParameters.FullPrimaryScreenWidth;
+            setUpTestClient();
 
 
-            moveMouse(x, y);
+
+           
         }
 
     }
