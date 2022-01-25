@@ -29,59 +29,78 @@ namespace Computer_Side
 
         [DllImport("User32.dll")] //importing 
         private static extern bool SetCursorPos(int X, int Y);
+        public bool connected = true;
+        public bool online = false;
         public MainWindow()
         {
             InitializeComponent();
 
             
+        }
+
+        public void moveMouse(int x, int y)
+        {
+            var point = Control.MousePosition;
+            SetCursorPos(Convert.ToInt32(x) + point.X, Convert.ToInt32(y) + point.Y); //adds current coords to parameters passed.
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (online)
+            {
+                online = false;
+            }
+            else { 
+                online = true;
+                setUpConnection();
+            }
+        }
+
+        private void setUpConnection() //NEED TO MAKE THIS ASYNCHRONOUS
+        {
+            Console.WriteLine("PASS");
             TcpListener listener = new TcpListener(System.Net.IPAddress.Any, 1333);
             listener.Start();
-            while (true) //loop
+            Console.WriteLine("Waiting for a connection.");
+            TcpClient client = listener.AcceptTcpClient();
+            Console.WriteLine("Client accepted.");
+            while (connected) //loop while connected to check for messages
             {
-                Console.WriteLine("Waiting for a connection.");
-                TcpClient client = listener.AcceptTcpClient(); //once accepted, move down the code
-                Console.WriteLine("Client accepted.");
+                
+                System.Threading.Thread.Sleep(500);
+
 
                 NetworkStream stream = client.GetStream();
-                StreamReader streamRead = new StreamReader(client.GetStream());//set up read/write abilities
-                StreamWriter streamWrite = new StreamWriter(client.GetStream());
+
+                StreamWriter streamWrite = new StreamWriter(client.GetStream());//set up read/write abilities
                 try
                 {
                     byte[] buffer = new byte[8];
                     stream.Read(buffer, 0, 8);
-
                     int x = BitConverter.ToInt32(buffer, 0);
                     int y = BitConverter.ToInt32(buffer, 4);
 
                     Console.WriteLine("X val recieved: " + x);
                     Console.WriteLine("Y val recieved: " + y);
                     moveMouse(x, y);
-                    
+
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Something went wrong.");
+                    Console.WriteLine("Incoming message wasn't of the correct format");
                     streamWrite.WriteLine(e.ToString());
+                    stream.Flush();
+
+                    break;
                 }
+
+
             }
 
-
-
-
-
-
+            Console.WriteLine("Connection ended");
         }
 
-        public void moveMouse(int x, int y)
-        {
-            var point = Control.MousePosition;
-            SetCursorPos(Convert.ToInt32(x) + point.X, Convert.ToInt32(y) + point.Y); //testing to make sure setting beyond screen limits doesnt throw errors
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            //
-        }
+        
     }
 
             }
