@@ -31,74 +31,120 @@ namespace Computer_Side
         private static extern bool SetCursorPos(int X, int Y);
         public bool connected = true;
         public bool online = false;
+
+        public TcpListener listener = null;
+        public TcpClient client = null;
+        
+        public NetworkStream stream = null;
         public MainWindow()
         {
             InitializeComponent();
-
+            
             
         }
 
         public void moveMouse(int x, int y)
         {
             var point = Control.MousePosition;
-            SetCursorPos(Convert.ToInt32(x) + point.X, Convert.ToInt32(y) + point.Y); //adds current coords to parameters passed.
+            SetCursorPos(x + point.X, y + point.Y); //adds current coords to parameters passed.
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            if (online)
+            if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
             {
-                online = false;
+                if (online)//checks if user wants it to be off or on
+                {
+                    online = false;
+                    endConnection();
+                }
+                else
+                {
+                    setUpListener();
+                }
             }
-            else { 
-                online = true;
-                setUpConnection();
+            else
+            {
+                Console.WriteLine("Not connected to the internet g");
             }
         }
 
-        private void setUpConnection() //NEED TO MAKE THIS ASYNCHRONOUS
+        private void endConnection()
         {
-            Console.WriteLine("PASS");
-            TcpListener listener = new TcpListener(System.Net.IPAddress.Any, 1333);
-            listener.Start();
-            Console.WriteLine("Waiting for a connection.");
-            TcpClient client = listener.AcceptTcpClient();
-            Console.WriteLine("Client accepted.");
-            while (connected) //loop while connected to check for messages
+            Console.WriteLine("Ending connection now.....");
+
+            if (listener != null)
             {
-                
-                System.Threading.Thread.Sleep(500);
-
-
-                NetworkStream stream = client.GetStream();
-
-                StreamWriter streamWrite = new StreamWriter(client.GetStream());//set up read/write abilities
-                try
-                {
-                    byte[] buffer = new byte[8];
-                    stream.Read(buffer, 0, 8);
-                    int x = BitConverter.ToInt32(buffer, 0);
-                    int y = BitConverter.ToInt32(buffer, 4);
-
-                    Console.WriteLine("X val recieved: " + x);
-                    Console.WriteLine("Y val recieved: " + y);
-                    moveMouse(x, y);
-
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Incoming message wasn't of the correct format");
-                    streamWrite.WriteLine(e.ToString());
-                    stream.Flush();
-
-                    break;
-                }
-
-
+                listener.Stop();
             }
-
-            Console.WriteLine("Connection ended");
+                client = null;
         }
+
+        async Task setUpListener()
+        {
+
+            await Task.Run(() =>
+            {
+                Console.WriteLine("PASS");
+                
+                listener = new TcpListener(System.Net.IPAddress.Any, 1333);
+                listener.Start();
+                Console.WriteLine("Waiting for a connection.");
+                client = listener.AcceptTcpClient();
+                stream = client.GetStream();
+                
+                Console.WriteLine("Client accepted.");
+                listen();
+
+
+
+
+            });
+        }
+
+
+        async Task listen()
+        {
+
+            await Task.Run(() =>
+            {
+                while (connected) //loop while connected to check for messages
+                {
+                  
+                    try
+                    {
+                        byte[] buffer = new byte[8];
+                        stream.Read(buffer,0,8);
+                        int x = BitConverter.ToInt32(buffer, 0); //reads first 4 bytes, offset by 0
+                        int y = BitConverter.ToInt32(buffer, 4); //reads 4 bytes, offset by 4
+
+                        Console.WriteLine("X val recieved: " + x);
+                        Console.WriteLine("Y val recieved: " + y);
+                        moveMouse(x, y);
+
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Incoming message wasn't of the correct format");
+                        
+
+
+                        break;
+                    }
+
+
+                }
+
+                Console.WriteLine("Connection ended");
+            });
+        }
+
+
+
+
+
+            
+            
 
         
     }

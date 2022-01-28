@@ -10,57 +10,150 @@ using System.Diagnostics;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
+using System.Threading;
 
 namespace Nea_Phone
 {
     public partial class MainPage : ContentPage
     {
+        public bool connected = false;
+        public TcpClient client = null;
+        public NetworkStream stream = null;
+        public bool tryingToConnect = false;
+
+
         public MainPage()
         {
             InitializeComponent();
-
-            mouseClick(); //once the program starts, you can click the button
-        /*connection:
-            try
-            {
-                TcpClient client = new TcpClient("127.0.0.1", 1333);
-
-                string messageToSend = "YO Hows it going G";
-                int byteCount = Encoding.ASCII.GetByteCount(messageToSend + 1);
-                byte[] sendData = Encoding.ASCII.GetBytes(messageToSend);
-
-                NetworkStream stream = client.GetStream(); //opens memory slot for the stream data
-                stream.Write(sendData, 0, sendData.Length); //writes the bytes from 0 to end
-                Console.WriteLine("Pass: Sent");
-
-                StreamReader sr = new StreamReader(stream);
-                string response = sr.ReadLine();
-                Console.WriteLine(response);
-
-                stream.Close();
-                client.Close();
-                Console.ReadKey();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("failed to connect...");
-                goto connection; //retries connection if failed
-            }
-        */
+            CancellationTokenSource _tokenSource = null;
 
 
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += (s, e) =>
             {
-                Console.WriteLine("x: " + e.TotalX);
-                Console.WriteLine("y" + e.TotalY * -1); //y coords in xamarin go up as u go down
+                Console.WriteLine("x: " + Convert.ToInt32(e.TotalX));
+                Console.WriteLine("y" + Convert.ToInt32(e.TotalY * -1)); //y coords in xamarin go up as u go down
                 Console.WriteLine(e.StatusType);
+                //send(Convert.ToInt32(e.TotalX), Convert.ToInt32(e.TotalY * -1));
 
             };
             theMouse.GestureRecognizers.Add(panGesture);
 
-            theMouse.GestureRecognizers.Add(new TapGestureRecognizer()
-            { Command = new Command(() => { DisplayAlert("U CLICKED!", "", "ok"); }) });
+            theMouse.GestureRecognizers.Add(new TapGestureRecognizer() //when clicked =>
+            { Command = new Command(() => {
+
+                if (client == null && !tryingToConnect)//if it isnt connected nor trying to
+                {
+                    
+                    
+                    connection(client, stream);
+                    DisplayAlert("Aight, ill try connect!", "", "ok");
+                }
+                else if (connected)//if its connected
+                {
+
+                    close(client, stream);
+                    DisplayAlert("AIGHT DISCONNECTING G", "", "ok");
+
+                }
+                else //its attempting to connect
+                {
+                    _tokenSource.Cancel();
+                    DisplayAlert("Aight, stopping trying to connect", "", "ok");
+                    
+
+                }
+
+
+
+
+
+            }) });
+
+
+
+
+
+
+
+
+            //networking here
+
+            void send(int a, int b)
+            {
+                if (connected)
+                {
+                    byte[] x = new byte[4];
+                    x = BitConverter.GetBytes(a);
+                    byte[] y = new byte[4];
+                    y = BitConverter.GetBytes(b);
+
+                    byte[] msg = new byte[8];
+                    Buffer.BlockCopy(x, 0, msg, 0, 4);
+                    Buffer.BlockCopy(y, 0, msg, 4, 4);
+
+
+
+                    //opens memory slot for the stream data
+                    stream.Write(msg, 0, msg.Length); //writes the bytes from 0 to end
+                    Console.WriteLine("Pass: Sent");
+                }
+                else
+                {
+                    Console.WriteLine("Not connected g"); // doesnt attempt to send to a non-connected client
+                }
+
+            }
+            void close(TcpClient client, NetworkStream stream)
+            {
+                stream.Close();
+                client.Close();
+            }
+
+            async Task connection(TcpClient client, NetworkStream stream)
+            {
+                _tokenSource = new CancellationTokenSource();
+                var token = _tokenSource.Token;
+                await Task.Run(() =>
+                {
+
+                    
+                    tryingToConnect = true;
+                    while (true)
+                    {
+                        if (token.IsCancellationRequested)
+                        {
+                            _tokenSource.Dispose();
+                            connected = false;
+                            tryingToConnect = false;
+                            return;
+                        }
+                        else
+                        {
+                            //retries every 4 seconds
+                            Console.WriteLine("Connecting......");
+                            try
+                            {
+                                client = new TcpClient("192.168.0.3                                                                                                                                                             .Ó.", 1333);
+                                stream = client.GetStream();
+                                Console.WriteLine("Stream is not null");
+
+                                connected = true;
+                                tryingToConnect = false;
+
+                                return;
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Error connecting or getting stream"); //will loop until connects
+                            }
+                            System.Threading.Thread.Sleep(4000);
+                        }
+                    }
+                }
+               
+                );
+            }
         }
       
         }
