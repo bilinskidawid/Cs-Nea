@@ -91,6 +91,7 @@ namespace Computer_Side
                 listener.Start();
                 Console.WriteLine("Waiting for a connection.");
                 client = listener.AcceptTcpClient();
+                Console.WriteLine("Connected!!!!!!!!!!!");
                 stream = client.GetStream();
                 
                 Console.WriteLine("Client accepted.");

@@ -37,30 +37,34 @@ namespace Nea_Phone
                 //send(Convert.ToInt32(e.TotalX), Convert.ToInt32(e.TotalY * -1));
 
             };
+            
             theMouse.GestureRecognizers.Add(panGesture);
-
             theMouse.GestureRecognizers.Add(new TapGestureRecognizer() //when clicked =>
+            {
+                Command = new Command(() =>
+                {
+                    DisplayAlert("Click", "You clicked", "ok");
+                })
+            });
+
+                    connectBtn.GestureRecognizers.Add(new TapGestureRecognizer() //when clicked =>
             { Command = new Command(() => {
 
                 if (client == null && !tryingToConnect)//if it isnt connected nor trying to
-                {
-                    
-                    
+                { 
                     connection(client, stream);
-                    DisplayAlert("Aight, ill try connect!", "", "ok");
+                    connectTxt.Text = "Trying to connect....";
                 }
                 else if (connected)//if its connected
                 {
-
                     close(client, stream);
-                    DisplayAlert("AIGHT DISCONNECTING G", "", "ok");
-
+                    connectTxt.Text = "Disconnected";
                 }
                 else //its attempting to connect
                 {
                     _tokenSource.Cancel();
-                    DisplayAlert("Aight, stopping trying to connect", "", "ok");
-                    
+
+                    connectTxt.Text = "Cancelled....";
 
                 }
 
@@ -134,7 +138,7 @@ namespace Nea_Phone
                             Console.WriteLine("Connecting......");
                             try
                             {
-                                client = new TcpClient("192.168.0.3                                                                                                                                                             .Ó.", 1333);
+                                client = new TcpClient("127.0.0.1", 1333);
                                 stream = client.GetStream();
                                 Console.WriteLine("Stream is not null");
 

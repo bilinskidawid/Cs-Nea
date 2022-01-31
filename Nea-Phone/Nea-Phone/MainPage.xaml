@@ -4,7 +4,15 @@
              x:Class="Nea_Phone.MainPage">
 
     <StackLayout>
-        <Label Text="YOOOOOO" HorizontalOptions="CenterAndExpand" FontSize="20">
+        <Ellipse x:Name="connectBtn" 
+                       Fill ="Red"
+                       WidthRequest="100" 
+                       HeightRequest="100" 
+                 >
+
+            
+        </Ellipse>
+        <Label x:Name="connectTxt" TextColor="Black" Text="Not connected!">
 
         </Label>
         <Frame BorderColor="Red"
@@ -12,14 +20,14 @@
                HorizontalOptions="CenterAndExpand"
                >
 
-
+            
 
 
             <Rectangle x:Name ="theMouse" Fill="DarkBlue"
                 WidthRequest="300"
-                HeightRequest="500"
+                HeightRequest="400"
                 HorizontalOptions="CenterAndExpand"
-                VerticalOptions="CenterAndExpand">
+                >
                 
             </Rectangle>
 
