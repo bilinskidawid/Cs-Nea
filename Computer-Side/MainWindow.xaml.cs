@@ -92,9 +92,11 @@ namespace Computer_Side
                 Console.WriteLine("Waiting for a connection.");
                 client = listener.AcceptTcpClient();
                 Console.WriteLine("Connected!!!!!!!!!!!");
+                labelTxt.Content = "Connected!";
                 stream = client.GetStream();
                 
                 Console.WriteLine("Client accepted.");
+                online = true;
                 listen();
 
 

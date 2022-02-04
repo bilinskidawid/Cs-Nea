@@ -44,6 +44,7 @@ namespace Nea_Phone
                 Command = new Command(() =>
                 {
                     DisplayAlert("Click", "You clicked", "ok");
+                    send(50, 100);
                 })
             });
 
@@ -134,24 +135,26 @@ namespace Nea_Phone
                         }
                         else
                         {
-                            //retries every 4 seconds
+                            
                             Console.WriteLine("Connecting......");
                             try
                             {
-                                client = new TcpClient("127.0.0.1", 1333);
+                                client = new TcpClient("192.168.0.3", 1333);
+                                
                                 stream = client.GetStream();
                                 Console.WriteLine("Stream is not null");
 
                                 connected = true;
+                                connectTxt.Text = "Connected!";
                                 tryingToConnect = false;
 
                                 return;
                             }
-                            catch (Exception e)
+                            catch 
                             {
                                 Console.WriteLine("Error connecting or getting stream"); //will loop until connects
                             }
-                            System.Threading.Thread.Sleep(4000);
+                            System.Threading.Thread.Sleep(1000);//retries every 1 second
                         }
                     }
                 }
