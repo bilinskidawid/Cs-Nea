@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cs-Computer", "Computer-Sid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nea-Phone.Android", "Nea-Phone\Nea-Phone.Android\Nea-Phone.Android.csproj", "{25168310-3006-4D7E-9937-2054A45C215C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nea-Phone", "Nea-Phone\Nea-Phone\Nea-Phone.csproj", "{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nea-Phone", "Nea-Phone\Nea-Phone\Nea-Phone.csproj", "{E00E85BC-62E1-4FDB-A07F-C0EAA7645AB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
