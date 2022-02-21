@@ -41,7 +41,7 @@ namespace Computer_Side
         public void moveMouse(int x, int y)
         {
             var point = Control.MousePosition;
-            SetCursorPos(x + point.X, y + point.Y); //adds current coords to parameters passed.
+            SetCursorPos(Convert.ToInt32(x*0.5) + point.X, Convert.ToInt32(y*0.5) + point.Y); //adds current coords to parameters passed.
         }
 
         void Button_Click(object sender, RoutedEventArgs e)
@@ -98,6 +98,7 @@ namespace Computer_Side
                 MessageBox.Show("Stream Gotten");
                 online = true;
                 connected = true;
+               
 
                 listen();
                 return;
@@ -115,18 +116,21 @@ namespace Computer_Side
                 byte[] buffer = new byte[8];
                 while (stream.CanRead) //loop while connected to check for messages
                 {
-                    MessageBox.Show("listeninggg");
+                    //MessageBox.Show("listeninggg");
+
 
                    stream.Read(buffer, 0, 8);//should read first 8 bytes from stream 
 
-                    MessageBox.Show("Pass 1");
+                   // MessageBox.Show("Pass 1");
                         
                        
                         int x = BitConverter.ToInt32(buffer, 0); //reads first 4 bytes, offset by 0
-                        int y = BitConverter.ToInt32(buffer, 3); //reads 4 bytes, offset by 4
-                        Console.WriteLine("Pass 2");
-                        Console.WriteLine("X val received: " + x);
-                        Console.WriteLine("Y val received: " + y);
+                        int y = BitConverter.ToInt32(buffer, 4);//reads 4 bytes, offset by 4
+                        
+
+                       // Console.WriteLine("Pass 2");
+                        //Console.WriteLine("X val received: " + x);
+                        //Console.WriteLine("Y val received: " + y);
                         moveMouse(x, y);
 
                     Thread.Sleep(1); //to not make it too taxing on system

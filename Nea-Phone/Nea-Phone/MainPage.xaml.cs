@@ -50,7 +50,12 @@ namespace Nea_Phone
                 //Console.WriteLine("x: " + Convert.ToInt32(e.TotalX));
                 //Console.WriteLine("y" + Convert.ToInt32(e.TotalY * -1)); //y coords in xamarin go up as u go down
                 //Console.WriteLine(e.StatusType);
-                send(Convert.ToInt32(e.TotalX), Convert.ToInt32(e.TotalY * -1));
+                if(e.StatusType == GestureStatus.Completed)
+                {
+                   //find a way to reset the x/y values
+                }
+                else { send(Convert.ToInt32(e.TotalX), Convert.ToInt32(e.TotalY)); }
+               
 
             };
 
@@ -62,7 +67,7 @@ namespace Nea_Phone
                 {
                     DisplayAlert("Click", "You clicked", "ok");
                     
-                    send(2147483647, 2147483647); //for testing sends 2 maximum int32 integers
+                    //send(2147483647, 2147483647); //for testing sends 2 maximum int32 integers
 
                 })
                 
@@ -168,8 +173,9 @@ namespace Nea_Phone
                                     //control variables(irrelevant to TCP connection)
                                     Console.WriteLine("PASSEDDDDDD");
                                     connected = true;
-                                    connectTxt.Text = "Connected!";
+                                   
                                     tryingToConnect = false;
+                                    Console.WriteLine("YOOOO");
                                    
                                     return;
                                 }
