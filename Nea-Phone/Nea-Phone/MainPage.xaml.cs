@@ -20,27 +20,37 @@ namespace Nea_Phone
     public partial class MainPage : ContentPage
     {
 
+        //public TcpClient client = null;
+        //public NetworkStream stream = null;
+        public CancellationTokenSource _tokenSource = null;
+        //public Socket sender = null;
         public TcpClient client = null;
         public NetworkStream stream = null;
-
-
-
         public MainPage()
         {
             InitializeComponent();
             bool connected = false;
             bool tryingToConnect = false;
-            CancellationTokenSource _tokenSource = null;
-            IPAddress ipAddress = IPAddress.Parse("192.168.0.3");
-            IPEndPoint remoteEP = new IPEndPoint(ipAddress, 13333);
-            
+
+            IPAddress ipAddress = IPAddress.Parse("192.168.0.2");
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress, 50000);
+
+
+
+
+
+
+
+
+
+
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += (s, e) =>
             {
-                Console.WriteLine("x: " + Convert.ToInt32(e.TotalX));
-                Console.WriteLine("y" + Convert.ToInt32(e.TotalY * -1)); //y coords in xamarin go up as u go down
-                Console.WriteLine(e.StatusType);
-                //send(Convert.ToInt32(e.TotalX), Convert.ToInt32(e.TotalY * -1));
+                //Console.WriteLine("x: " + Convert.ToInt32(e.TotalX));
+                //Console.WriteLine("y" + Convert.ToInt32(e.TotalY * -1)); //y coords in xamarin go up as u go down
+                //Console.WriteLine(e.StatusType);
+                send(Convert.ToInt32(e.TotalX), Convert.ToInt32(e.TotalY * -1));
 
             };
 
@@ -50,12 +60,10 @@ namespace Nea_Phone
 
                 Command = new Command(() =>
                 {
-                DisplayAlert("Click", "You clicked", "ok");
-                    //send(50, 100);
-                    for (int i = 0; i < 5; i++)
-                    {
-                        ping(IPAddress.Parse("192.168.0.3"));
-                    }
+                    DisplayAlert("Click", "You clicked", "ok");
+                    
+                    send(2147483647, 2147483647); //for testing sends 2 maximum int32 integers
+
                 })
                 
             });
@@ -77,6 +85,9 @@ namespace Nea_Phone
                     {
                         connection();
                         connectTxt.Text = "Trying to connect....";
+                        
+                        tryingToConnect = true;
+                        
                     }
                     else if (connected)//if its connected
                     {
@@ -101,6 +112,138 @@ namespace Nea_Phone
 
 
             }) });
+
+
+           
+
+
+
+
+
+            //networking here
+            
+
+            string getIp()
+            {
+                foreach (IPAddress address in Dns.GetHostAddresses(Dns.GetHostName()))
+                {
+                   
+                    return (address.ToString());
+                }
+                return null;
+            }
+
+                async Task connection()
+            {
+                _tokenSource = new CancellationTokenSource();
+               
+                await Task.Run(() =>
+                    {
+                        Console.WriteLine("Connection called");
+                        var token = _tokenSource.Token;
+                        tryingToConnect = true;
+                        while (true)
+                        {
+                            if (token.IsCancellationRequested) //check that the impending connection request isnt cancelled
+                            {
+
+                                Console.WriteLine("Cancelled");
+
+
+                                connected = false;
+                                tryingToConnect = false;
+                                return;
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    Console.WriteLine("Trying again.....");
+                                      client = new TcpClient("192.168.0.2", 50000); //tries to connect to a client on specified IP endpoint
+
+                                      Console.WriteLine("Client connected");
+                                      stream = client.GetStream(); //gets underlying network stream of the client
+                                      Console.WriteLine("Got stream");
+
+                                    //control variables(irrelevant to TCP connection)
+                                    Console.WriteLine("PASSEDDDDDD");
+                                    connected = true;
+                                    connectTxt.Text = "Connected!";
+                                    tryingToConnect = false;
+                                   
+                                    return;
+                                }
+                                catch 
+                                {
+                                    client = null;
+                                    stream = null;
+                                    Console.WriteLine("Error connecting or getting stream"); //will loop until connects
+                               }
+                                Thread.Sleep(1000); //retry every 1000 milliseconds
+
+                            }
+                        }
+                        
+                    }
+
+                    );
+                }
+
+            
+          
+                    
+                
+            
+
+
+
+
+
+
+
+                void send(int a, int b)
+                {
+                    if (connected)
+                    {
+                        byte[] x = new byte[4];
+                        x = BitConverter.GetBytes(a);
+                        byte[] y = new byte[4];
+                        y = BitConverter.GetBytes(b);
+
+                        byte[] msg = new byte[8];
+                        Buffer.BlockCopy(x, 0, msg, 0, 4); //copies the two different 4 byte arrays into one 8 byte array
+                        Buffer.BlockCopy(y, 0, msg, 4, 4);
+
+                   
+                    stream.Write(msg, 0, 8);//writes an 8 byte byte array to stream
+                    
+                    //opens memory slot for the stream data
+                  
+                        Console.WriteLine("Pass: Sent");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not connected g"); // doesnt attempt to send to a non-connected client
+                    }
+
+                }
+
+                void close()
+                {
+                
+
+                client.Close();
+                stream.Dispose();
+            }
+
+
+
+
+
+
+
+
+
 
 
             async Task ping(IPAddress ip)
@@ -134,149 +277,8 @@ namespace Nea_Phone
                         Console.WriteLine("Failed ping");
                     }
                 });
-            } 
-
-
-
-
-
-            //networking here
-            
-
-            string getIp()
-            {
-                foreach (IPAddress address in Dns.GetHostAddresses(Dns.GetHostName()))
-                {
-                   
-                    return (address.ToString());
-                }
-                return null;
             }
-
-                async Task connection()
-                {
-                    _tokenSource = new CancellationTokenSource();
-                    tryingToConnect = true;
-                    var token = _tokenSource.Token;
-                
-                await Task.Run(() =>
-                    {
-                        while (true)
-                        {
-                            if (token.IsCancellationRequested)
-                            {
-                                _tokenSource.Dispose();
-
-                                connected = false;
-                                tryingToConnect = false;
-                                return;
-                            }
-                            else
-                            {
-
-                                Console.WriteLine("Connecting......");
-
-                                var result = client.BeginConnect(ipAddress, 13333, null, null);
-
-                                var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(10));
-
-                                if (!success)
-                                {
-                                    Console.WriteLine("Failed to connect :(");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Client connected :D");
-                                   
-                                    stream = client.GetStream();
-                                    Console.WriteLine("Got stream");
-
-
-                                    Console.WriteLine("PASSEDDDDDD");
-                                    connected = true;
-                                    connectTxt.Text = "Connected!";
-                                    tryingToConnect = false;
-                                    return;
-
-                                }
-
-
-
-
-
-
-
-
-                                /*try
-                                {
-                                    Console.WriteLine("Trying again.....");
-                                      client = new TcpClient("192.168.0.3", 13333);
-                                     
-                                      Console.WriteLine("Client connected");
-                                      stream = client.GetStream();
-                                      Console.WriteLine("Got stream");
-                                    
-                                   
-                                    Console.WriteLine("PASSEDDDDDD");
-                                    connected = true;
-                                    connectTxt.Text = "Connected!";
-                                    tryingToConnect = false;
-
-                                    return;
-                                }
-                                catch 
-                                {
-                                    sender = null;
-                                    Console.WriteLine("Error connecting or getting stream"); //will loop until connects
-                               }*/
-                                System.Threading.Thread.Sleep(3000);//retries every 3 seconds
-                            }
-                        }
-                    }
-
-                    );
-                }
-
-
-
-
-
-
-
-
-
-                void send(int a, int b)
-                {
-                    if (connected)
-                    {
-                        byte[] x = new byte[4];
-                        x = BitConverter.GetBytes(a);
-                        byte[] y = new byte[4];
-                        y = BitConverter.GetBytes(b);
-
-                        byte[] msg = new byte[8];
-                        Buffer.BlockCopy(x, 0, msg, 0, 4);
-                        Buffer.BlockCopy(y, 0, msg, 4, 4);
-
-
-
-                    //opens memory slot for the stream data
-                    stream.Write(msg, 0, 8); //writes the bytes from 0 to end
-                        Console.WriteLine("Pass: Sent");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Not connected g"); // doesnt attempt to send to a non-connected client
-                    }
-
-                }
-
-                void close()
-                {
-                client.Close();
-                client = null;
-                }
-            }
+        }
 
         }
     }

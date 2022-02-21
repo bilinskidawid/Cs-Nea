@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Forms;
 using Control = System.Windows.Forms.Control;
-using System.Net.Sockets;
-using System.Net;
-using System.IO;
-using System.Net.NetworkInformation;
+using MessageBox = System.Windows.Forms.MessageBox;
 
 namespace Computer_Side
 {
@@ -35,6 +26,11 @@ namespace Computer_Side
         public TcpListener listener = null;
         public TcpClient client = null;
         public NetworkStream stream = null;
+        
+        //public Socket listener = null;
+        //public Socket handler = null;
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -47,8 +43,8 @@ namespace Computer_Side
             var point = Control.MousePosition;
             SetCursorPos(x + point.X, y + point.Y); //adds current coords to parameters passed.
         }
-        
-        private void Button_Click(object sender, RoutedEventArgs e)
+
+        void Button_Click(object sender, RoutedEventArgs e)
         {
             if (System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable()) //if its connected to a network
             {
@@ -60,6 +56,7 @@ namespace Computer_Side
                 else
                 {
                     setUpListener();
+                    MessageBox.Show("Set up listener");
                 }
             }
             else
@@ -72,12 +69,81 @@ namespace Computer_Side
         {
             Console.WriteLine("Ending connection now.....");
 
-            
-                
-                listener.Stop();
-    
-            
+            listener.Stop();//stops listeneing
+            client.Close();
+
+
         }
+        
+
+        async Task setUpListener()
+        {
+
+            await Task.Run(() =>
+            {
+                Console.WriteLine("PASS");
+                IPAddress address = IPAddress.Parse(GetLocalIPv4(NetworkInterfaceType.Wireless80211));//gets IP address of WIFI card
+                IPEndPoint endpoint = new IPEndPoint(address, 50000);
+
+                listener = new TcpListener(endpoint); //starts listening on port 50000
+
+                listener.Start();
+                MessageBox.Show("Waiting for a connection.");
+                client = listener.AcceptTcpClient(); //this is where the code stops, while waiting for a connection
+                
+                MessageBox.Show("Connected!!!!!!!!!!!");
+
+                stream = client.GetStream();
+
+                MessageBox.Show("Stream Gotten");
+                online = true;
+                connected = true;
+
+                listen();
+                return;
+            });
+        }
+       
+
+        async Task listen()
+        {
+
+            await Task.Run(() =>
+            {
+
+
+                byte[] buffer = new byte[8];
+                while (stream.CanRead) //loop while connected to check for messages
+                {
+                    MessageBox.Show("listeninggg");
+
+                   stream.Read(buffer, 0, 8);//should read first 8 bytes from stream 
+
+                    MessageBox.Show("Pass 1");
+                        
+                       
+                        int x = BitConverter.ToInt32(buffer, 0); //reads first 4 bytes, offset by 0
+                        int y = BitConverter.ToInt32(buffer, 3); //reads 4 bytes, offset by 4
+                        Console.WriteLine("Pass 2");
+                        Console.WriteLine("X val received: " + x);
+                        Console.WriteLine("Y val received: " + y);
+                        moveMouse(x, y);
+
+                    Thread.Sleep(1); //to not make it too taxing on system
+
+                }
+
+                Console.WriteLine("Connection ended");
+            });
+        }
+
+
+
+
+
+
+
+
         public string GetLocalIPv4(NetworkInterfaceType _type) //external code to just get the local address
         {
             string output = "";
@@ -99,79 +165,8 @@ namespace Computer_Side
 
         }
 
-        async Task setUpListener()
-        {
-
-            await Task.Run(() =>
-            {
-                Console.WriteLine("PASS");
-                IPAddress address = IPAddress.Parse(GetLocalIPv4(NetworkInterfaceType.Wireless80211));//gets IP address of WIFI card
-                IPEndPoint endpoint = new IPEndPoint(address, 13333);
-                
-                listener = new TcpListener(endpoint); //starts listening on port 133
-                                                  //33, local address
-                listener.Start();
-                Console.WriteLine("Waiting for a connection.");
-                client = listener.AcceptTcpClient(); //this is where the code stops, while waiting for a connection
-
-                    Console.WriteLine("Connected!!!!!!!!!!!");
-                  
-                    stream = client.GetStream();
-
-                    Console.WriteLine("Client accepted.");
-                    online = true;
-                    
-                
-                    listen();
-                
-
-
-
-            });
-        }
-
-
-        async Task listen()
-        {
-
-            await Task.Run(() =>
-            {
-                while (connected) //loop while connected to check for messages
-                {
-                  
-                    try
-                    {
-                        byte[] buffer = new byte[8];
-                        stream.Read(buffer, 0, 8);//recieved byte array gets put in buffer
-                        
-
-                            int x = BitConverter.ToInt32(buffer, 0); //reads first 4 bytes, offset by 0
-                            int y = BitConverter.ToInt32(buffer, 4); //reads 4 bytes, offset by 4
-
-                            Console.WriteLine("X val recieved: " + x);
-                            Console.WriteLine("Y val recieved: " + y);
-                            moveMouse(x, y);
-                        
-
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Incoming message wasn't of the correct format");
-                        
-
-
-                        break;
-                    }
-
-
-                }
-
-                Console.WriteLine("Connection ended");
-            });
-        }
-
     }
 
-            }
-      
-  
+}
+
+
