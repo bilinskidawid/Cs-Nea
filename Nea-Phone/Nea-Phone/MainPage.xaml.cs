@@ -33,23 +33,13 @@ namespace Nea_Phone
             bool tryingToConnect = false;
 
             IPAddress ipAddress = IPAddress.Parse("192.168.0.2");
-            IPEndPoint remoteEP = new IPEndPoint(ipAddress, 50000);
-
-
-
-
-
-
-
-
+            
 
 
             var panGesture = new PanGestureRecognizer();
             panGesture.PanUpdated += (s, e) =>
             {
-                //Console.WriteLine("x: " + Convert.ToInt32(e.TotalX));
-                //Console.WriteLine("y" + Convert.ToInt32(e.TotalY * -1)); //y coords in xamarin go up as u go down
-                //Console.WriteLine(e.StatusType);
+                
                 if(e.StatusType == GestureStatus.Completed)
                 {
                    //find a way to reset the x/y values
@@ -74,21 +64,13 @@ namespace Nea_Phone
             });
 
 
-
-
-
-
-
-
-
-
             connectBtn.GestureRecognizers.Add(new TapGestureRecognizer() //when clicked =>
             { Command = new Command(() => {
                 if (Connectivity.NetworkAccess == NetworkAccess.Internet)
                 {
                     if (client == null && !tryingToConnect)//if it isnt connected nor trying to
                     {
-                        connection();
+                        connection(); //calls connection establishing method
                         connectTxt.Text = "Trying to connect....";
                         
                         tryingToConnect = true;
@@ -96,12 +78,12 @@ namespace Nea_Phone
                     }
                     else if (connected)//if its connected
                     {
-                        close();
+                        close(); //calls closing method
                         connectTxt.Text = "Disconnected";
                     }
                     else //its attempting to connect
                     {
-                        _tokenSource.Cancel();
+                        _tokenSource.Cancel();//cancels the async method
 
                         connectTxt.Text = "Cancelled....";
 
@@ -119,16 +101,11 @@ namespace Nea_Phone
             }) });
 
 
-           
-
-
-
-
 
             //networking here
             
 
-            string getIp()
+            string getIp()//external function to get the Ip of the device
             {
                 foreach (IPAddress address in Dns.GetHostAddresses(Dns.GetHostName()))
                 {
@@ -145,7 +122,7 @@ namespace Nea_Phone
                 await Task.Run(() =>
                     {
                         Console.WriteLine("Connection called");
-                        var token = _tokenSource.Token;
+                        var token = _tokenSource.Token;//gets a token to be able to be cancelled mid-execution of the async method
                         tryingToConnect = true;
                         while (true)
                         {
@@ -171,17 +148,17 @@ namespace Nea_Phone
                                       Console.WriteLine("Got stream");
 
                                     //control variables(irrelevant to TCP connection)
-                                    Console.WriteLine("PASSEDDDDDD");
+                                   
                                     connected = true;
                                    
                                     tryingToConnect = false;
-                                    Console.WriteLine("YOOOO");
+                                   
                                    
                                     return;
                                 }
                                 catch 
                                 {
-                                    client = null;
+                                    client = null;//makes sure that the client and stream arent partly changed etc
                                     stream = null;
                                     Console.WriteLine("Error connecting or getting stream"); //will loop until connects
                                }
@@ -195,35 +172,24 @@ namespace Nea_Phone
                     );
                 }
 
-            
-          
-                    
-                
-            
-
-
-
-
-
-
 
                 void send(int a, int b)
                 {
-                    if (connected)
+                    if (connected)//if theres an active tcp connection
                     {
                         byte[] x = new byte[4];
-                        x = BitConverter.GetBytes(a);
+                        x = BitConverter.GetBytes(a); //makes the "x" value into a 4 byte array
                         byte[] y = new byte[4];
-                        y = BitConverter.GetBytes(b);
+                        y = BitConverter.GetBytes(b);//makes the "y" value into a 4 byte array
 
-                        byte[] msg = new byte[8];
+                        byte[] msg = new byte[8];//final byte array that gets sent
                         Buffer.BlockCopy(x, 0, msg, 0, 4); //copies the two different 4 byte arrays into one 8 byte array
                         Buffer.BlockCopy(y, 0, msg, 4, 4);
 
                    
                     stream.Write(msg, 0, 8);//writes an 8 byte byte array to stream
                     
-                    //opens memory slot for the stream data
+                   
                   
                         Console.WriteLine("Pass: Sent");
                     }
@@ -238,17 +204,9 @@ namespace Nea_Phone
                 {
                 
 
-                client.Close();
-                stream.Dispose();
+                client.Close();//closes the tcp connection
+                stream.Dispose();//releases all stream resources
             }
-
-
-
-
-
-
-
-
 
 
 
@@ -257,26 +215,25 @@ namespace Nea_Phone
                 await Task.Run(() =>
                 {
                     Console.WriteLine("Pinging...");
-                    Ping pingSender = new Ping();
+                    Ping pingSender = new Ping();//creates a ping instance
                     PingOptions options = new PingOptions();
 
-                    // Use the default Ttl value which is 128,
-                    // but change the fragmentation behavior.
-                    options.DontFragment = true;
+                    
+                    options.DontFragment = true;//sends only one packet
 
                     // Create a buffer of 32 bytes of data to be transmitted.
                     string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
                     byte[] buffer = Encoding.ASCII.GetBytes(data);
-                    int timeout = 3600;
+                    int timeout = 3600;//3.6 second time to live
                     PingReply reply = pingSender.Send(ip, timeout, buffer, options);
-                    if (reply.Status == IPStatus.Success)
+                    if (reply.Status == IPStatus.Success)//outputs stats on the successful ping
                     {
                         Console.WriteLine("PING SUCCESS!!!!");
-                        Console.WriteLine("Address: {0}", reply.Address.ToString());
-                        Console.WriteLine("RoundTrip time: {0}", reply.RoundtripTime);
-                        Console.WriteLine("Time to live: {0}", reply.Options.Ttl);
-                        Console.WriteLine("Don't fragment: {0}", reply.Options.DontFragment);
-                        Console.WriteLine("Buffer size: {0}", reply.Buffer.Length);
+                        Console.WriteLine("Address: " + reply.Address.ToString());
+                        Console.WriteLine("RoundTrip time: " + reply.RoundtripTime);
+                        Console.WriteLine("Time to live: " + reply.Options.Ttl);
+                        Console.WriteLine("Don't fragment: " + reply.Options.DontFragment);
+                        Console.WriteLine("Buffer size: " + reply.Buffer.Length);
                     }
                     else
                     {

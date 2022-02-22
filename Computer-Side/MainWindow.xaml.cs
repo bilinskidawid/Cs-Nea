@@ -20,28 +20,25 @@ namespace Computer_Side
     {
 
         [DllImport("User32.dll")] //importing 
-        private static extern bool SetCursorPos(int X, int Y);
+        private static extern bool SetCursorPos(int X, int Y); //imported method to set the cursor position on screen
         public bool connected = true;
         public bool online = false;
         public TcpListener listener = null;
         public TcpClient client = null;
         public NetworkStream stream = null;
         
-        //public Socket listener = null;
-        //public Socket handler = null;
 
 
         public MainWindow()
         {
             InitializeComponent();
-            
 
         }
 
         public void moveMouse(int x, int y)
         {
-            var point = Control.MousePosition;
-            SetCursorPos(Convert.ToInt32(x*0.5) + point.X, Convert.ToInt32(y*0.5) + point.Y); //adds current coords to parameters passed.
+            var point = Control.MousePosition; //current mouse position
+            SetCursorPos(Convert.ToInt32(x) + point.X, Convert.ToInt32(y) + point.Y); //adds current coords to parameters passed.
         }
 
         void Button_Click(object sender, RoutedEventArgs e)
@@ -51,12 +48,12 @@ namespace Computer_Side
                 if (online)//checks if user wants it to be off or on
                 {
                     online = false;
-                    endConnection();
+                    endConnection(); //calls close method
                 }
                 else
                 {
-                    setUpListener();
-                    MessageBox.Show("Set up listener");
+                    setUpListener(); //calls set up connection method
+                    //MessageBox.Show("Set up listener");
                 }
             }
             else
@@ -79,9 +76,9 @@ namespace Computer_Side
         async Task setUpListener()
         {
 
-            await Task.Run(() =>
+            await Task.Run(() =>//makes it async(run in background)
             {
-                Console.WriteLine("PASS");
+                //Console.WriteLine("PASS");
                 IPAddress address = IPAddress.Parse(GetLocalIPv4(NetworkInterfaceType.Wireless80211));//gets IP address of WIFI card
                 IPEndPoint endpoint = new IPEndPoint(address, 50000);
 
@@ -93,14 +90,14 @@ namespace Computer_Side
                 
                 MessageBox.Show("Connected!!!!!!!!!!!");
 
-                stream = client.GetStream();
+                stream = client.GetStream();//gets network stream of the client to then read/write
 
-                MessageBox.Show("Stream Gotten");
-                online = true;
+               // MessageBox.Show("Stream Gotten");
+                online = true;//control booleans for flow control
                 connected = true;
                
 
-                listen();
+                listen();//calls the method that handles the incoming data
                 return;
             });
         }
@@ -113,7 +110,7 @@ namespace Computer_Side
             {
 
 
-                byte[] buffer = new byte[8];
+                byte[] buffer = new byte[8];//received data goes into this buffer
                 while (stream.CanRead) //loop while connected to check for messages
                 {
                     //MessageBox.Show("listeninggg");
@@ -127,17 +124,13 @@ namespace Computer_Side
                         int x = BitConverter.ToInt32(buffer, 0); //reads first 4 bytes, offset by 0
                         int y = BitConverter.ToInt32(buffer, 4);//reads 4 bytes, offset by 4
                         
-
-                       // Console.WriteLine("Pass 2");
-                        //Console.WriteLine("X val received: " + x);
-                        //Console.WriteLine("Y val received: " + y);
-                        moveMouse(x, y);
+                        moveMouse(x, y); //calls method to handle 
 
                     Thread.Sleep(1); //to not make it too taxing on system
 
                 }
 
-                Console.WriteLine("Connection ended");
+                MessageBox.Show("Connection","Connection ended");
             });
         }
 
@@ -164,7 +157,6 @@ namespace Computer_Side
                     }
                 }
             }
-            Console.WriteLine(output);
             return output;
 
         }
